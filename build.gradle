@@ -4,6 +4,40 @@ project['repos.useMaven'] = 'true'
 apply from: 'common.gradle'
 apply plugin: 'java'
 
+//  Work-around for Gradle bug where Runtime classpath must include every
+//  Compilation classpath element:
+def compileOnlyArtifacts = [ 'crimson' ] as Set
+
+compileJava.options.debug = (!project.hasProperty('javac.debug')
+            || Boolean.parseBoolean(project.property('javac.debug')))
+sourceCompatibility = '1.2'
+targetCompatibility = '1.2'
+
+configurations { compileOnly }
+
+// De-transify dependencies. We aim for precision, not laziness.
+for (Configuration c in configurations) c.transitive = false
+
+jar { doFirst {
+    def deplibs = []
+    Set<File> runtimeOnlyFiles = configurations.compileOnly.files as Set<File>
+    configurations.runtime.files.collect {
+        if (!runtimeOnlyFiles.contains(it)) deplibs << it.name
+    }
+    if (!project.hasProperty('implVendor'))
+        project.implVendor = System.properties['user.name']
+    jar { manifest { attributes(
+        'Main-Class': 'com.sun.msv.schematron.Driver',
+        'Class-Path': deplibs.join(' '),
+        'Specification-Title': 'Relames',
+        'Specification-Version': project.upstreamVersion,
+        'Specification-Vendor': 'Sun Microsystems, Inc.',
+        'Implementation-Title': 'Relames executable jar',
+        'Implementation-Version': project.version,
+        'Implementation-Vendor': project.implVendor
+    ) } }
+} }
+
 // This task only for SCM administrator.  Update version and execute this task.
 task updateWrapper(type: Wrapper) { doFirst {
     assert project.hasProperty('newVersion') :
