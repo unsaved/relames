@@ -1,5 +1,7 @@
 apply from: 'build.gradle'
 
+project.skipJarTask = true
+
 defaultTasks 'uploadArchives'
 try {
     project.getByName("updateWrapper")

@@ -20,18 +20,19 @@ configurations { compileOnly }
 // De-transify dependencies. We aim for precision, not laziness.
 for (Configuration c in configurations) c.transitive = false
 
+project.rtLibs = null
 jar { doFirst {
-    def deplibs = []
+    project.rtLibs = []
     Set<File> runtimeOnlyFiles = configurations.compileOnly.files as Set<File>
     configurations.runtime.files.collect {
-        if (!runtimeOnlyFiles.contains(it)) deplibs << it.name
+        if (!runtimeOnlyFiles.contains(it)) project.rtLibs << it.name
     }
     String implVendor = (project.hasProperty('organization')
                         ? project.organization
                         : System.properties['user.name'])
     jar { manifest { attributes(
         'Main-Class': 'com.sun.msv.schematron.Driver',
-        'Class-Path': deplibs.join(' '),
+        'Class-Path': project.rtLibs.join(' '),
         'Specification-Title': 'Relames',
         'Specification-Version': project.upstreamVersion,
         'Specification-Vendor': 'Sun Microsystems, Inc.',
@@ -40,6 +41,8 @@ jar { doFirst {
         'Implementation-Vendor': implVendor
     ) } }
 } }
+// Hack because Gradle milestone 3 won't do the deps right
+jar.onlyIf { !project.hasProperty('skipJarTask') }
 
 // This task only for SCM administrator.  Update version and execute this task.
 task updateWrapper(type: Wrapper) { doFirst {
@@ -125,6 +128,13 @@ task checkTabs (dependsOn: war) << {
     if (tabFiles.size() > 0) println '  ' + tabFiles.join('\n  ')
 }
 */
+
+// This task totally not working!
+task zip(dependsOn: jar, type: Zip) {
+    from configurations.runtime.allArtifacts.files
+    //from { project.rtLibs }
+    into(project.name + '-' + project.version)
+}
 
 configurations {
     compile { transitive = false }
