@@ -13,7 +13,7 @@ compileJava.options.debug = (!project.hasProperty('javac.debug')
             || Boolean.parseBoolean(project.property('javac.debug')))
 sourceCompatibility = '1.2'
 targetCompatibility = '1.2'
-description = "Modern build of the the aborted RelaxNG+Schematron-capable validator from Sun's MSV project "
+description = "Modern build of the the aborted RelaxNG+Schematron-capable validator from Sun's MSV project"
 
 configurations { compileOnly }
 
@@ -138,6 +138,41 @@ uploadArchives {
         project.setProperty('mavenRepository.dest.url', '')
     repositories.mavenDeployer {
         repository(url: project.property('mavenRepository.dest.url'))
+        pom.project {
+            name "$project.name, RelaxNG+Schematron-capable validator"
+            //packaging jar   BUG with Gradle prevents this from having effect
+            description project.description
+            url project.url
+            inceptionYear project.inceptionYear
+            scm {
+                url project.getProperty('scm.url')
+                connection project.getProperty('scm.connection')
+            }
+            licenses {
+                license {
+                    name 'Sun open source'
+                    url 'https://github.com/unsaved/relames/blob/master/doc/copyright.txt'
+                    distribution 'repo'
+                }
+                license {
+                    name 'Apache 2.0'
+                    url 'https://github.com/unsaved/relames/blob/master/doc/Apache-LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+            developers {
+                developer {
+                    id 'kohsuke'
+                    name 'Kohsuke Kawaguchi'
+                    email 'kohsuke.kawaguchi@eng.sun.com'
+                }
+                developer {
+                    id 'unsaved'
+                    name 'Blaine Simpson'
+                    email 'blaine.simpson@admc.com'
+                }
+            }
+        }
     }
 }
 
@@ -152,4 +187,11 @@ uploadArchives { doFirst {
     assert (project.hasProperty('mavenRepository.dest.url')
             && project.property('mavenRepository.dest.url') != ''):
     "Property 'mavenRepository.dest.url' is required by 'uploadArchives' task."
+
+    assert (project.hasProperty('scm.connection')
+            && project.hasProperty('scm.url')
+            && project.hasProperty('url')
+            && project.hasProperty('inceptionYear')) :
+            ("Following properties required for 'uploadArchives' task: "
+            + 'scm.connection, scm.url, url, inceptionYear')
 } }
