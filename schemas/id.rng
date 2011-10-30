@@ -4,22 +4,22 @@
   xmlns:s="http://www.ascc.net/xml/schematron"
   datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
 
-	<start>
-		<element name="test">
-			<zeroOrMore>
-				<choice>
-					<element name="id">
-						<attribute name="id" />
-						
-					</element>
-					<element name="idref">
-				    <s:assert test="id(@idref)">
-				      IDREF must refer to ID
-				    </s:assert>
-						<attribute name="idref" />
-					</element>
-				</choice>
-			</zeroOrMore>
-		</element>
-	</start>
+        <start>
+                <element name="test">
+                        <zeroOrMore>
+                                <choice>
+                                        <element name="id">
+                                                <attribute name="id" />
+                                                
+                                        </element>
+                                        <element name="idref">
+                                    <s:assert test="id(@idref)">
+                                      IDREF must refer to ID
+                                    </s:assert>
+                                                <attribute name="idref" />
+                                        </element>
+                                </choice>
+                        </zeroOrMore>
+                </element>
+        </start>
 </grammar>

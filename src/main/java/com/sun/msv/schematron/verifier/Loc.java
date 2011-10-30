@@ -14,10 +14,10 @@ import org.xml.sax.Locator;
  * Poor man's locator object.
  */
 class Loc {
-	Loc( Locator src ) {
-		this.line = src.getLineNumber();
-		this.col = src.getColumnNumber();
-	}
-	final int line;
-	final int col;
+        Loc( Locator src ) {
+                this.line = src.getLineNumber();
+                this.col = src.getColumnNumber();
+        }
+        final int line;
+        final int col;
 }

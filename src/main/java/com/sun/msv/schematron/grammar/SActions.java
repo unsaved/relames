@@ -15,7 +15,7 @@ import java.util.Collection;
  * Set of reports and asserts.
  * 
  * @author
- * 	Kohsuke Kawaguchi (kohsuke.kawaguchi@sun.com)
+ *      Kohsuke Kawaguchi (kohsuke.kawaguchi@sun.com)
  */
 public class SActions {
     public final SAction[]    asserts;

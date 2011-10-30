@@ -18,7 +18,7 @@ import com.sun.msv.schematron.reader.SRELAXNGReader;
  * {@link VerifierFactoryLoader} implementation.
  * 
  * @author
- * 	Kohsuke Kawaguchi (kohsuke.kawaguchi@sun.com)
+ *      Kohsuke Kawaguchi (kohsuke.kawaguchi@sun.com)
  */
 public class FactoryLoaderImpl implements VerifierFactoryLoader {
     public VerifierFactory createFactory(String name) {

@@ -19,7 +19,7 @@ import com.sun.msv.grammar.Grammar;
  * {@link Schema} implementation.
  * 
  * @author
- * 	Kohsuke Kawaguchi (kohsuke.kawaguchi@sun.com)
+ *      Kohsuke Kawaguchi (kohsuke.kawaguchi@sun.com)
  */
 class RelamesSchemaImpl implements Schema {
     

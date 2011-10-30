@@ -14,34 +14,34 @@ import java.util.List;
 
 public class SElementState extends ElementState implements SActionReceiver, SRuleReceiver {
 
-	protected State createChildState( StartTagInfo tag ) {
-		
-		if(!tag.namespaceURI.equals(SRELAXNGReader.SchematronURI))
-			return super.createChildState(tag);
+        protected State createChildState( StartTagInfo tag ) {
+                
+                if(!tag.namespaceURI.equals(SRELAXNGReader.SchematronURI))
+                        return super.createChildState(tag);
 
-		if( tag.localName.equals("rule") )
-			return new SRuleState();
-		if( tag.localName.equals("assert") )
-			return new SActionState.SAssertState();
-		if( tag.localName.equals("report") )
-			return new SActionState.SReportState();
+                if( tag.localName.equals("rule") )
+                        return new SRuleState();
+                if( tag.localName.equals("assert") )
+                        return new SActionState.SAssertState();
+                if( tag.localName.equals("report") )
+                        return new SActionState.SReportState();
         if( tag.localName.equals("pattern") )
             return new SPatternState();
         return null;
-	}
-	
-	private final List asserts = new ArrayList();
-	public void onAssert( SAction action ) {
-		asserts.add(action);
-	}
-	private final List reports = new ArrayList();
-	public void onReport( SAction action ) {
-		reports.add(action);
-	}
-	private final List rules = new ArrayList();
-	public void onRule( SRule rule ) {
-		rules.add(rule);
-	}
+        }
+        
+        private final List asserts = new ArrayList();
+        public void onAssert( SAction action ) {
+                asserts.add(action);
+        }
+        private final List reports = new ArrayList();
+        public void onReport( SAction action ) {
+                reports.add(action);
+        }
+        private final List rules = new ArrayList();
+        public void onRule( SRule rule ) {
+                rules.add(rule);
+        }
 
     protected Expression annealExpression( Expression contentModel ) {
 
@@ -49,5 +49,5 @@ public class SElementState extends ElementState implements SActionReceiver, SRul
             new PrefixResolverImpl(this),
             rules,
             new SActions(asserts,reports) );
-	}
+        }
 }

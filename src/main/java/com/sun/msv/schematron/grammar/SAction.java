@@ -7,8 +7,8 @@ import org.apache.xpath.XPath;
  */
 public class SAction {
     
-	public final XPath		xpath;
-	public final String		document;
+        public final XPath              xpath;
+        public final String             document;
     
     public SAction( XPath xp, String msg ) {
         this.xpath = xp;

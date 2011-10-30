@@ -24,47 +24,47 @@ import javax.xml.parsers.ParserConfigurationException;
  * builds DOM from SAX2 event stream.
  */
 public class DOMBuilder extends DefaultHandler {
-	
-	protected final DocumentBuilder builder;
-	protected Document dom;
-	protected Node parent;
+        
+        protected final DocumentBuilder builder;
+        protected Document dom;
+        protected Node parent;
 
     private StringBuffer buf = new StringBuffer();
 
-	public DOMBuilder( DocumentBuilder builder ) {
-		this.builder = builder;
-	}
-	public DOMBuilder() throws ParserConfigurationException {
-		this( DocumentBuilderFactory.newInstance().newDocumentBuilder() );
-	}
-	
-	/**
-	 * returns DOM. This method should be called after the parsing was completed.
-	 */
-	public Document getDocument() {
-		return dom;
-	}
+        public DOMBuilder( DocumentBuilder builder ) {
+                this.builder = builder;
+        }
+        public DOMBuilder() throws ParserConfigurationException {
+                this( DocumentBuilderFactory.newInstance().newDocumentBuilder() );
+        }
+        
+        /**
+         * returns DOM. This method should be called after the parsing was completed.
+         */
+        public Document getDocument() {
+                return dom;
+        }
 
-	public void startDocument() throws SAXException {
-		parent = dom = builder.newDocument();
-	}
-	
-	public void startElement( String ns, String local, String qname, Attributes atts ) throws SAXException {
+        public void startDocument() throws SAXException {
+                parent = dom = builder.newDocument();
+        }
+        
+        public void startElement( String ns, String local, String qname, Attributes atts ) throws SAXException {
         processText();
-		Element e = dom.createElementNS( ns, local );
-		parent.appendChild(e);
-		parent = e;
-		
-		for( int i=0; i<atts.getLength(); i++ )
-			e.setAttributeNS( atts.getURI(i), atts.getLocalName(i), atts.getValue(i) );
-	}
-	
-	public void endElement( String ns, String local, String qname ) throws SAXException {
+                Element e = dom.createElementNS( ns, local );
+                parent.appendChild(e);
+                parent = e;
+                
+                for( int i=0; i<atts.getLength(); i++ )
+                        e.setAttributeNS( atts.getURI(i), atts.getLocalName(i), atts.getValue(i) );
+        }
+        
+        public void endElement( String ns, String local, String qname ) throws SAXException {
         processText();
-		parent = parent.getParentNode();
-	}
-	
-	public void characters( char[] buf, int start, int len ) throws SAXException {
+                parent = parent.getParentNode();
+        }
+        
+        public void characters( char[] buf, int start, int len ) throws SAXException {
         // Xalan doesn't like consequtive text nodes in a DOM tree when
         // doing XPath, so buffer them
         this.buf.append(buf,start,len);
@@ -72,11 +72,11 @@ public class DOMBuilder extends DefaultHandler {
 
     private void processText() {
         if(buf.length()>0)
-    		parent.appendChild( dom.createTextNode(buf.toString()) );
+                parent.appendChild( dom.createTextNode(buf.toString()) );
         buf.setLength(0);
-	}
-	
-	public void ignorableWhitespace( char[] buf, int start, int len ) throws SAXException {
+        }
+        
+        public void ignorableWhitespace( char[] buf, int start, int len ) throws SAXException {
         characters(buf,start,len);
-	}
+        }
 }

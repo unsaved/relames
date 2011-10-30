@@ -14,22 +14,22 @@ import com.sun.msv.reader.State;
  */
 class PrefixResolverImpl implements PrefixResolver
 {
-	PrefixResolverImpl( State owner ) {
+        PrefixResolverImpl( State owner ) {
         reader = ((SRELAXNGReader) owner.reader);
         currentNs = reader.getTargetNamespace();
-		currentResolver = reader.prefixResolver;
-		location = owner.getLocation();
-	}
-	private final Locator location;
-	private final String currentNs;
+                currentResolver = reader.prefixResolver;
+                location = owner.getLocation();
+        }
+        private final Locator location;
+        private final String currentNs;
     private final SRELAXNGReader reader;
-	private final GrammarReader.PrefixResolver currentResolver;
-	
-	public String getBaseIdentifier() {
-		return location.getSystemId();
-	}
-	public String getNamespaceForPrefix( String prefix ) {
-		if(prefix.equals(""))	return currentNs;
+        private final GrammarReader.PrefixResolver currentResolver;
+        
+        public String getBaseIdentifier() {
+                return location.getSystemId();
+        }
+        public String getNamespaceForPrefix( String prefix ) {
+                if(prefix.equals(""))   return currentNs;
 
         String nsUri = reader.schematronNs.getURI(prefix);
         if(nsUri!=null)     return nsUri;
@@ -37,11 +37,11 @@ class PrefixResolverImpl implements PrefixResolver
         // for the compatibility reason with the past version
         // also allow the current in-scope namespace bindings to take effect
         return currentResolver.resolve(prefix);
-	}
-	public String getNamespaceForPrefix( String prefix, Node n ) {
-		return getNamespaceForPrefix(prefix);
-	}
-	public boolean handlesNullPrefixes() {
-		return false;
-	}
+        }
+        public String getNamespaceForPrefix( String prefix, Node n ) {
+                return getNamespaceForPrefix(prefix);
+        }
+        public boolean handlesNullPrefixes() {
+                return false;
+        }
 }

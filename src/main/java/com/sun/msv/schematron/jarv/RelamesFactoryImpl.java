@@ -31,7 +31,7 @@ import com.sun.msv.schematron.reader.SRELAXNGReader;
  * for RELAX NG + schematron.
  * 
  * @author
- * 	Kohsuke Kawaguchi (kohsuke.kawaguchi@sun.com)
+ *      Kohsuke Kawaguchi (kohsuke.kawaguchi@sun.com)
  */
 public class RelamesFactoryImpl extends VerifierFactory {
     

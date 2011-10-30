@@ -25,7 +25,7 @@ import com.sun.msv.verifier.regexp.REDocumentDeclaration;
  * {@link org.iso_relax.verifier.Verifier} implementation.
  * 
  * @author
- * 	Kohsuke Kawaguchi (kohsuke.kawaguchi@sun.com)
+ *      Kohsuke Kawaguchi (kohsuke.kawaguchi@sun.com)
  */
 class RelamesVerifierImpl extends VerifierImpl {
 

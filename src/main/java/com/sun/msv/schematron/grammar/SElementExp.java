@@ -21,14 +21,14 @@ public class SElementExp extends ElementPattern {
     
     /** actions directly apply to this element. */
     public final SActions actions;
-	
-	public SElementExp( NameClass nc, Expression body,
+        
+        public SElementExp( NameClass nc, Expression body,
         PrefixResolver pr, Collection rules, SActions actions ) {
-		
+                
         super(nc,body);
         
         this.prefixResolver = pr;
         this.rules = (SRule[]) rules.toArray(new SRule[rules.size()]);;
         this.actions = actions;
-	}
+        }
 }
