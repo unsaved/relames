@@ -1,0 +1,77 @@
+import org.apache.ivy.core.settings.IvySettings
+import org.apache.ivy.core.module.descriptor.DefaultModuleDescriptor
+import org.apache.ivy.plugins.parser.xml.XmlModuleDescriptorParser
+import org.apache.ivy.core.module.descriptor.DependencyDescriptor
+import org.apache.ivy.core.module.id.ModuleRevisionId
+import org.apache.ivy.core.module.descriptor.DependencyArtifactDescriptor
+import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
+import org.gradle.api.internal.artifacts.dependencies.DefaultDependencyArtifact
+import org.gradle.api.internal.artifacts.DefaultExcludeRule
+
+/**
+ * This Gradle support for 'ivy.xml' is based on contributed fragments in Jira
+ * issue for GRADLE-197 at http://issues.gradle.org/browse/GRADLE-197 .
+ * The code here does also include my own enhancements.
+ *
+ * Set project property ivyDepFile to path String to the Ivy dependencies file.
+ * This corresponds to Ivy property 'ivy.dep.file'.  Defaults to "ivy.xml".
+ *
+ * Does not attempt to load any ivysettings files or do any repository setup,
+ * only dependency settings.
+ *
+ * Limitation of ivy.xml parsing:  excludes attributes ignored
+ */
+
+
+// configurations apparently not a Collection, since this doesn't work:
+//def gradleProjConfMap = configurations.collectEntries { [(it.name): it] }
+def gradleProjConfMap = [:]
+for (p in configurations) gradleProjConfMap[p.name] = p
+
+DefaultModuleDescriptor moduleDescriptor =
+        (DefaultModuleDescriptor) XmlModuleDescriptorParser.instance
+        .parseDescriptor(new IvySettings(),
+        new File(project.hasProperty('ivyDepFile')
+        ? project.ivyDepFile : 'ivy.xml')
+        .toURL(), false)
+moduleDescriptor.dependencies.each {
+    DependencyDescriptor descriptor ->
+        def mappableConfNames = descriptor.moduleConfigurations.findAll {
+            gradleProjConfMap.containsKey(it)
+        }
+    for (mappableConfName in mappableConfNames) {
+        if (!mappableConfName) return
+        ModuleRevisionId id = descriptor.dependencyRevisionId
+        DefaultExternalModuleDependency dep =
+            new DefaultExternalModuleDependency(id.organisation, id.name,
+                    id.revision, descriptor.getDependencyConfigurations(
+                    mappableConfName)[0])
+        dep.changing = descriptor.changing
+        dep.transitive = descriptor.transitive
+
+        descriptor.allDependencyArtifacts.each {
+            DependencyArtifactDescriptor depArt ->
+                dep.addArtifact(new DefaultDependencyArtifact(
+                        depArt.name, depArt.type, depArt.ext, null, depArt.url))
+        }
+
+        def excRuleContainer = dep.excludeRules
+        descriptor.excludeRules?.values().each {
+            def ruleList -> ruleList.each {
+                excRuleContainer.add(new DefaultExcludeRule(it.attributes))
+            }
+        }
+        gradleProjConfMap[mappableConfName].getDependencies().add(dep)
+    }
+}
+
+task displayDeps << {
+    if (!project.hasProperty('config.name'))
+        throw new GradleException(
+                "Project property 'config.name' required by task 'echoDeps'.")
+    println (configurations[project['config.name']].allDependencies.size()
+            + ' configs for ' + project['config.name'] + '\n    '
+            +  configurations[project['config.name']].asPath
+            .replace(System.properties['path.separator'], '\n    '))
+}
+displayDeps.description = "Lists Ivy deps only for specified 'config.name'"

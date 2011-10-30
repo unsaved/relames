@@ -1,0 +1,96 @@
+defaultTasks 'compileJava'
+
+project['repos.useMaven'] = 'true'
+apply from: 'common.gradle'
+apply plugin: 'java'
+
+// This task only for SCM administrator.  Update version and execute this task.
+task updateWrapper(type: Wrapper) { doFirst {
+    assert project.hasProperty('newVersion') :
+            "Property 'newVersion' is required for task 'updateWrapper'"
+    assert project.newVersion == gradle.gradleVersion :
+        "You invoke Gradle system with version $gradle.gradleVersion instead of desired version $project.newVersion"
+} }
+updateWrapper << {
+    gradleVersion = project['newVersion']
+    println 'WARNING:  Merge our customizations into the newly-generated wrapper scripts'
+}
+updateWrapper.description = 'Update Gradle version.  For HSQLDB Administrators.'
+
+/*
+task serialver << {
+    if (!project.hasProperty('className'))
+        throw new InvalidUserDataException(
+                "Property 'className' is required for task 'serialver'")
+
+    String pathSep = System.properties['path.separator']
+    // Could alternatively use Gradle's ExecSpec via exec(...)
+    Process process = new ProcessBuilder([
+        // 'D:\\progra~1\\portableGit-1.7.3.1-p\\bin\\ls',
+        'serialver',
+        '-classpath',
+        ('classes' + pathSep + configurations.runtime.files.join(pathSep)
+                + pathSep + configurations.compile.files.join(pathSep))
+        ,
+        project.property('className')
+    ]).redirectErrorStream(true).start()
+    // Must read input before waitFor-ing
+    process.inputStream.eachLine { println it }
+    process.waitFor()
+    if (process.exitValue()) {
+        //print process.inputStream.text
+        throw new GradleException("'serialver' execution failed")
+    }
+}
+serialver.description = "Generates Java serialversion for specified 'classname'"
+*/
+
+void resolveCheck(configName) {
+    int artCount = configurations[configName].files.size()
+    // Following test works only if deps' transitive is false.
+    if (configurations[configName].allDependencies.size() != artCount) {
+        logger.error(
+                "Didn't resolve all dependencies for config '$configName'.  "
+                + configurations[configName].allDependencies.size()
+                + ' dependencies:\n    ' + configurations[configName]
+                .allDependencies .collect({it.name}).join('\n    ')
+                + '\nbut ' + artCount
+                + ' resolved artifacts:\n    '
+                + configurations[configName].files.collect({it}).join('\n    ')
+                + '\n'
+        )
+        assert false : "Didn't resolve all dependencies."
+    }
+    //configurations[configName].files.each { println '+' + it }
+    //throw new GradleException("Quittin' early")
+    logger.info "$artCount  artifacts resolved"
+}
+
+compileJava.dependsOn << {
+    if (!project.hasProperty('resolveCheck.skip')
+            || !Boolean.parseBoolean(project.property('resolveCheck.skip')))
+        resolveCheck('compile')
+}
+
+// Blaine wants to use a variant of the following to check for tabs in
+// SqlTool's properties and *.txt files.
+/*  X's inserted below or this multi-line comment would not work.
+task checkTabs (dependsOn: war) << {
+    FileTree tree = fileTree(dir: '.')
+    tree.exclude '**X/.*'
+    tree.exclude 'src/main/webapp/images'
+    tree.exclude 'src/main/webapp/css/openid*.css'
+    tree.exclude 'src/main/webapp/js/openid*.js'
+    tree.include  'src/X**'
+    tree.include  'doc/X**'
+    def tabFiles = []
+    tree.each { if (it.text.indexOf('\t') > -1) tabFiles << relativePath(it) }
+    if (tabFiles.size() > 0) println '  ' + tabFiles.join('\n  ')
+}
+*/
+
+configurations {
+    compile { transitive = false }
+}
+apply from: 'ivyxml-support.gradle'
+
