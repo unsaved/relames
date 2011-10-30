@@ -1,4 +1,4 @@
 /.gradle
 gradle-app.setting
 local*
-build
+/build
