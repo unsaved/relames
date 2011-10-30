@@ -1,4 +1,4 @@
-defaultTasks 'compileJava'
+defaultTasks 'jar'
 
 project['repos.useMaven'] = 'true'
 apply from: 'common.gradle'
@@ -204,6 +204,9 @@ task sourcesJar(type: Jar, dependsOn:classes) {
      from sourceSets.main.allSource
 }
 sourcesJar.description = 'Build sources jar file'
+
+// Required for Gradle 1.0 milestone 3, but not for milestone 5:
+javadoc.failOnError = false
  
 task javadocJar(type: Jar, dependsOn:javadoc) {
      classifier = 'javadoc'
