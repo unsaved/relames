@@ -2,10 +2,10 @@ This is Axis Data Management's modern build of the 'relames'
 RelaxNG+Schematron-capable validator from Sun's MSV project.
 This project, https://github.com/unsaved/relames, is an indirect fork of the
 'relames' portion of the much more comprehensive project
-https://github.com/kohsuke/msv>
+https://github.com/kohsuke/msv .
 
 For information about the purpose and use of the relames product, please see
-https://github.com/unsaved/relames/blob/master/doc/README.txt
+https://github.com/unsaved/relames/blob/master/doc/README.txt .
 
 We use Gradle instead of Ant or Maven to build jars, zips, and Maven
 repository artifacts, and includes Gradle's "wrapper" infrastructure so that
