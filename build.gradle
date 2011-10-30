@@ -3,6 +3,7 @@ defaultTasks 'compileJava'
 project['repos.useMaven'] = 'true'
 apply from: 'common.gradle'
 apply plugin: 'java'
+apply plugin: 'maven'
 
 //  Work-around for Gradle bug where Runtime classpath must include every
 //  Compilation classpath element:
@@ -12,6 +13,7 @@ compileJava.options.debug = (!project.hasProperty('javac.debug')
             || Boolean.parseBoolean(project.property('javac.debug')))
 sourceCompatibility = '1.2'
 targetCompatibility = '1.2'
+description = "Modern build of the the aborted RelaxNG+Schematron-capable validator from Sun's MSV project "
 
 configurations { compileOnly }
 
@@ -24,8 +26,9 @@ jar { doFirst {
     configurations.runtime.files.collect {
         if (!runtimeOnlyFiles.contains(it)) deplibs << it.name
     }
-    if (!project.hasProperty('implVendor'))
-        project.implVendor = System.properties['user.name']
+    String implVendor = (project.hasProperty('organization')
+                        ? project.organization
+                        : System.properties['user.name'])
     jar { manifest { attributes(
         'Main-Class': 'com.sun.msv.schematron.Driver',
         'Class-Path': deplibs.join(' '),
@@ -34,7 +37,7 @@ jar { doFirst {
         'Specification-Vendor': 'Sun Microsystems, Inc.',
         'Implementation-Title': 'Relames executable jar',
         'Implementation-Version': project.version,
-        'Implementation-Vendor': project.implVendor
+        'Implementation-Vendor': implVendor
     ) } }
 } }
 
@@ -128,3 +131,25 @@ configurations {
 }
 apply from: 'ivyxml-support.gradle'
 
+uploadArchives {
+    if (!project.hasProperty('mavenRepository.dest.url'))
+        // This crap just to satisfy load-time requirement when the
+        // uploadArchives task won't even be used.
+        project.setProperty('mavenRepository.dest.url', '')
+    repositories.mavenDeployer {
+        repository(url: project.property('mavenRepository.dest.url'))
+    }
+}
+
+uploadArchives { doFirst {
+    assert project.hasProperty('group') && project.group != '' :
+            "Property 'group' is required by 'uploadArchives' task."
+    /*  Unfortunately, Maven plugin has no OOTB way to get a proper
+     *  organization name into the descriptors.
+    assert project.hasProperty('organization') && project.organization != '' :
+            "Property 'organization' is required by 'uploadArchives' task."
+     */
+    assert (project.hasProperty('mavenRepository.dest.url')
+            && project.property('mavenRepository.dest.url') != ''):
+    "Property 'mavenRepository.dest.url' is required by 'uploadArchives' task."
+} }
