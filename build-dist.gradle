@@ -18,6 +18,10 @@ What you must do until either Gradle or PgpPlugin gets fixed, is
 '''
 } 
 
+task echo << {
+    println configurations.archives.name
+}
+
 buildscript {
     repositories {
         mavenCentral()
