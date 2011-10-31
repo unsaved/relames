@@ -70,11 +70,6 @@ uploadArchives {
             }
             developers {
                 developer {
-                    id 'kohsuke'
-                    name 'Kohsuke Kawaguchi'
-                    email 'kohsuke.kawaguchi@eng.sun.com'
-                }
-                developer {
                     id 'unsaved'
                     name 'Blaine Simpson'
                     email 'blaine.simpson@admc.com'
