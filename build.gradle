@@ -129,12 +129,33 @@ task checkTabs (dependsOn: war) << {
 }
 */
 
-// This task totally not working!
 task zip(dependsOn: jar, type: Zip) {
     from configurations.runtime.allArtifacts.files
-    //from { project.rtLibs }
+    from configurations.runtime
+    from new File(buildDir, 'filtered-docs')
     into(project.name + '-' + project.version)
+    exclude '**/crimson-*.jar'
 }
+zip.description =
+        'Build zip of end-user executable relames jar with dependencies'
+
+import java.text.SimpleDateFormat
+import org.apache.tools.ant.filters.ReplaceTokens
+import org.apache.tools.ant.filters.FixCrLfFilter
+zip { doFirst {
+    copy {
+        from 'doc'
+        into new File(buildDir, 'filtered-docs')
+        exclude '**/.*/**'
+        filter(ReplaceTokens, tokens: [
+            VERSION: (upstreamVersion
+                    + ' (ADMC Relames v. ' + project.version + ')'),
+            YEAR: new SimpleDateFormat("yyyy").format(new Date())
+        ])
+        //Ask how to do this at Gradle forum:
+        //filter(FixCrLfFilter, eol: 'lf')
+    }
+} }
 
 configurations {
     compile { transitive = false }
