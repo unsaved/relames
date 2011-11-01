@@ -1,7 +1,5 @@
 apply from: 'build.gradle'
 
-project.skipJarTask = true
-
 defaultTasks 'uploadArchives'
 
 /****************************************************************************
