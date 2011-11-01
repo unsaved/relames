@@ -180,9 +180,6 @@ sourcesJar.description = 'Build javadoc jar file'
  
 // add javadoc/source jar tasks as artifacts
 artifacts {
-     'default' sourcesJar
-     'default' javadocJar
      archives sourcesJar
      archives javadocJar
-     'default' javadocJar
 }
