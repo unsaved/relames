@@ -2,48 +2,10 @@ apply from: 'build.gradle'
 
 defaultTasks 'uploadArchives'
 
-/****************************************************************************
- ** WARNING:  Following buildscript contains a work-around for a bug in
- ** PgpPlugin that prevents it working with Gradle 1.0-milestone-5.
- ** You MUST:
- ** 1:
- **   git clone git://github.com/huxi/huxi-gradle-plugins.git
- ** 2:
- ** Make the following change to the file
- ** "src/main/groovy/de/huxhorn/gradle/pgp/PgpPlugin.grooy":
- ** -  def uploadTask = project.getByName('uploadArchives')
- ** +  def uploadTask =
- ** +          project.getTasksByName('uploadArchives', false).toArray()[0]  
- ** 3:
- ** Run the 'uploadArchives' task of it.
- ** That will install everything you need to under $HOME/local-gradle-repository
- **
- ** When a fixed version of PgpPlugin is available in Maven, hopefully with
- ** PgpPlug version 0.0.4, we just need to remove the local repository below
- ** and replace the SNAPSHOT classpath setting with the 0.0.4 setting.
- ***************************************************************************/
-buildscript {
-    repositories {
-        maven { url ( System.properties['user.home']
-                + '/local-gradle-repository/snapshot') }
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'de.huxhorn.gradle:de.huxhorn.gradle.pgp-plugin:0.0.4-SNAPSHOT'
-        //classpath 'de.huxhorn.gradle:de.huxhorn.gradle.pgp-plugin:0.0.4'
-    }
-}
+apply plugin: 'signing'
 
-apply plugin: de.huxhorn.gradle.pgp.PgpPlugin
-
-pgp {
-    assert (project.hasProperty('pgp.secretKeyRingFile')
-            && project.hasProperty('pgp.keyId')
-            && project.hasProperty('pgp.password')) :
-            "Properties 'pgp.secretKeyRingFile, pgp.keyId, pgp.password are required for our PgpPlugin integration"
-    secretKeyRingFile = new File(project.property('pgp.secretKeyRingFile'))
-    keyId = project.property('pgp.keyId')
-    password =  project.property('pgp.password')
+signing {
+    sign configurations.archives
 }
 
 uploadArchives {
@@ -57,12 +19,8 @@ uploadArchives {
         project.setProperty('mavenRepository.dest.password', '')
 
     repositories.mavenDeployer {
-        repository(url: project.property('mavenRepository.dest.url')) {
-            authentication(
-                userName: project.property('mavenRepository.dest.username'),
-                password: project.property('mavenRepository.dest.password')
-            )
-        }
+        beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
+        repository(url: project.property('mavenRepository.dest.url'))
         pom.project {
             name "$project.name, RelaxNG+Schematron-capable validator"
             //packaging jar   BUG with Gradle prevents this from having effect
