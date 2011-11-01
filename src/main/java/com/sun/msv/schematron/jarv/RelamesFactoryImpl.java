@@ -39,7 +39,7 @@ public class RelamesFactoryImpl extends VerifierFactory {
     
     /**
      * Constructor for RelamesFactoryImpl.
-     * @param factory
+     * @param _factory
      *      This parser factory will be used to read RELAX NG schemas.
      */
     public RelamesFactoryImpl(SAXParserFactory _factory) {
