@@ -53,8 +53,18 @@ uploadArchives {
         // This crap just to satisfy load-time requirement when the
         // uploadArchives task won't even be used.
         project.setProperty('mavenRepository.dest.url', '')
+    if (!project.hasProperty('mavenRepository.dest.username'))
+        project.setProperty('mavenRepository.dest.username', '')
+    if (!project.hasProperty('mavenRepository.dest.password'))
+        project.setProperty('mavenRepository.dest.password', '')
+
     repositories.mavenDeployer {
-        repository(url: project.property('mavenRepository.dest.url'))
+        repository(url: project.property('mavenRepository.dest.url')) {
+            authentication(
+                userName: project.property('mavenRepository.dest.username'),
+                password: project.property('mavenRepository.dest.password')
+            )
+        }
         pom.project {
             name "$project.name, RelaxNG+Schematron-capable validator"
             //packaging jar   BUG with Gradle prevents this from having effect
