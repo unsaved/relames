@@ -41,8 +41,6 @@ jar { doFirst {
         'Implementation-Vendor': implVendor
     ) } }
 } }
-// Hack because Gradle milestone 3 won't do the deps right
-jar.onlyIf { !project.hasProperty('skipJarTask') }
 
 // This task only for SCM administrator.  Update version and execute this task.
 task updateWrapper(type: Wrapper) { doFirst {

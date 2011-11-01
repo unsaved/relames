@@ -3,27 +3,36 @@ apply from: 'build.gradle'
 project.skipJarTask = true
 
 defaultTasks 'uploadArchives'
-try {
-    project.getByName("updateWrapper")
-} catch (RuntimeException re) {
-    assert false:
-'''The current version of PgpPlugin is incompatible with the version of Gradle
-that you are using.
-What you must do until either Gradle or PgpPlugin gets fixed, is
-    1:  Install Gradle v. 1.0-milestone-3 system
-    2:  Build your jar file as usual, using 'gradlew' and the main build file
-    3:  You must use the milestone 3 binary whenever you specify
-        -b build-dist.gradle.  Something like:
-            /path/to/gradle -b build-dist.gradle [-switches and targets]
-'''
-} 
 
+/****************************************************************************
+ ** WARNING:  Following buildscript contains a work-around for a bug in
+ ** PgpPlugin that prevents it working with Gradle 1.0-milestone-5.
+ ** You MUST:
+ ** 1:
+ **   git clone git://github.com/huxi/huxi-gradle-plugins.git
+ ** 2:
+ ** Make the following change to the file
+ ** "src/main/groovy/de/huxhorn/gradle/pgp/PgpPlugin.grooy":
+ ** -  def uploadTask = project.getByName('uploadArchives')
+ ** +  def uploadTask =
+ ** +          project.getTasksByName('uploadArchives', false).toArray()[0]  
+ ** 3:
+ ** Run the 'uploadArchives' task of it.
+ ** That will install everything you need to under $HOME/local-gradle-repository
+ **
+ ** When a fixed version of PgpPlugin is available in Maven, hopefully with
+ ** PgpPlug version 0.0.4, we just need to remove the local repository below
+ ** and replace the SNAPSHOT classpath setting with the 0.0.4 setting.
+ ***************************************************************************/
 buildscript {
     repositories {
+        maven { url ( System.properties['user.home']
+                + '/local-gradle-repository/snapshot') }
         mavenCentral()
     }
     dependencies {
-        classpath 'de.huxhorn.gradle:de.huxhorn.gradle.pgp-plugin:0.0.3'
+        classpath 'de.huxhorn.gradle:de.huxhorn.gradle.pgp-plugin:0.0.4-SNAPSHOT'
+        //classpath 'de.huxhorn.gradle:de.huxhorn.gradle.pgp-plugin:0.0.4'
     }
 }
 
