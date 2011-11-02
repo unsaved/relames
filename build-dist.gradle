@@ -18,7 +18,12 @@ uploadArchives {
 
     repositories.mavenDeployer {
         beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
-        repository(url: project.property('mavenRepository.dest.url'))
+        repository(url: project.property('mavenRepository.dest.url')) {
+            authentication(
+                userName: project.property('mavenRepository.dest.username'),
+                password: project.property('mavenRepository.dest.password')
+            )
+        }
         pom.project {
             name "$project.name, RELAX-NG- + Schematron-capable XML Validator"
             //packaging jar   BUG with Gradle prevents this from having effect
