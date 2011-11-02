@@ -1,5 +1,5 @@
 This is Axis Data Management's modern build of the 'relames'
-RelaxNG+Schematron-capable validator from Sun's MSV project.
+RELAX-NG- + Schematron-capable validator from Sun's MSV project.
 This project, https://github.com/unsaved/relames, is an indirect fork of the
 'relames' portion of the much more comprehensive project
 https://github.com/kohsuke/msv .

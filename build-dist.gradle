@@ -20,7 +20,7 @@ uploadArchives {
         beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
         repository(url: project.property('mavenRepository.dest.url'))
         pom.project {
-            name "$project.name, RelaxNG+Schematron-capable validator"
+            name "$project.name, RELAX-NG- + Schematron-capable XML Validator"
             //packaging jar   BUG with Gradle prevents this from having effect
             description project.description
             url project.url
