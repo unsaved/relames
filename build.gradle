@@ -5,6 +5,8 @@ apply from: 'common.gradle'
 apply plugin: 'java'
 apply plugin: 'maven'
 
+// This only present because a Java boolean can't be set in a Java properties
+// file.
 compileJava.options.debug = (!project.hasProperty('javac.debug')
             || Boolean.parseBoolean(project.property('javac.debug')))
 sourceCompatibility = '1.2'
@@ -23,7 +25,7 @@ project.rtLibs = null
 jar { doFirst {
     project.rtLibs = []
     Set<File> runtimeOnlyFiles = configurations.compileOnly.files as Set<File>
-    configurations.runtime.files.collect {
+    configurations.runtime.files.each {
         if (!runtimeOnlyFiles.contains(it)) project.rtLibs << it.name
     }
     String implVendor = (project.hasProperty('organization')
