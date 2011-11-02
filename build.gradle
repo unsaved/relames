@@ -1,5 +1,11 @@
 defaultTasks 'jar'
 
+/**
+ * You can add to what is here by creating a build file name "local.gradle".
+ * If present, it will be applied automatically.
+ * One use case for this is to define additional repositories.
+ */
+
 project['repos.useMaven'] = 'true'
 apply from: 'common.gradle'
 apply plugin: 'java'
