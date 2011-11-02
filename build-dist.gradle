@@ -36,7 +36,7 @@ uploadArchives {
             licenses {
                 license {
                     name 'Sun open source'
-                    url 'https://github.com/unsaved/relames/blob/master/doc/copyright.txt'
+                    url 'https://github.com/unsaved/relames/raw/master/doc/copyright.txt'
                     distribution 'repo'
                 }
                 license {
