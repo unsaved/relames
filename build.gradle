@@ -18,7 +18,8 @@ description = "Modern build of the the aborted RelaxNG+Schematron-capable valida
 configurations { compileOnly }
 
 // De-transify dependencies. We aim for precision, not laziness.
-for (Configuration c in configurations) c.transitive = false
+//for (Configuration c in configurations) c.transitive = false
+// We now let 'ivy.xml' configure transitiveness.
 
 project.rtLibs = null
 jar { doFirst {
@@ -183,3 +184,5 @@ artifacts {
      archives sourcesJar
      archives javadocJar
 }
+
+apply from: 'build-dist.gradle'

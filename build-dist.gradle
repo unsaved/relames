@@ -1,5 +1,3 @@
-apply from: 'build.gradle'
-
 defaultTasks 'uploadArchives'
 
 apply plugin: 'signing'
