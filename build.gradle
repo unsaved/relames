@@ -156,9 +156,6 @@ zip { doFirst {
     }
 } }
 
-configurations {
-    compile { transitive = false }
-}
 apply from: 'ivyxml-support.gradle'
 
 // Following 3 tasks copied from
