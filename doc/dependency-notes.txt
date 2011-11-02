@@ -1,0 +1,6 @@
+If this project is depended-on transitively, it will pull in
+xmlParserAPIs by virtue of batik-ext, and serializer by virtue of xalan.
+Nothing I have tried eliminates these unnecessary dependencies on this side.
+Users will have to use their dependency product's transitive exclusion
+mechanism (which I find are very limited and generally do not work) or live
+with the extra libraries.
