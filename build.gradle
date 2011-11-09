@@ -62,33 +62,31 @@ updateWrapper << {
 }
 updateWrapper.description = 'Update Gradle version.  For HSQLDB Administrators.'
 
-/*
-task serialver << {
-    if (!project.hasProperty('className'))
-        throw new InvalidUserDataException(
-                "Property 'className' is required for task 'serialver'")
-
-    String pathSep = System.properties['path.separator']
+task serialver(dependsOn: compileJava) << {
+    assert project.hasProperty('className'):
+            '''Property 'className' is required for task 'serialver'.'''
+    String fileSep = System.properties['file.separator']
     // Could alternatively use Gradle's ExecSpec via exec(...)
+    String javaHome = System.properties['java.home']
+    String javacHome = (javaHome.endsWith("jre")
+            ? javaHome.substring(0, javaHome.length() - "/jre".length())
+            : javaHome)
     Process process = new ProcessBuilder([
-        // 'D:\\progra~1\\portableGit-1.7.3.1-p\\bin\\ls',
-        'serialver',
+        javacHome + fileSep + 'bin' + fileSep + 'serialver',
         '-classpath',
-        ('classes' + pathSep + configurations.runtime.files.join(pathSep)
-                + pathSep + configurations.compile.files.join(pathSep))
-        ,
+        'build/classes/main' + System.properties['path.separator']
+                + configurations.runtime.asPath,
         project.property('className')
     ]).redirectErrorStream(true).start()
     // Must read input before waitFor-ing
-    process.inputStream.eachLine { println it }
-    process.waitFor()
-    if (process.exitValue()) {
-        //print process.inputStream.text
-        throw new GradleException("'serialver' execution failed")
-    }
+    File outFile = new File(System.properties['java.io.tmpdir'],
+                'serialVer-' + System.properties['user.name'] + '.txt')
+    process.inputStream.eachLine { println it; outFile.write(it + '\n') }
+    assert process.waitFor() == 0:  '''Execution of 'serialver' failed'''
+    println """Also written to file '$outFile.absolutePath'
+so you can read it into your editor."""
 }
 serialver.description = "Generates Java serialversion for specified 'classname'"
-*/
 
 void resolveCheck(configName) {
     int artCount = configurations[configName].files.size()
@@ -117,22 +115,19 @@ compileJava.dependsOn << {
         resolveCheck('compile')
 }
 
-// Blaine wants to use a variant of the following to check for tabs in
-// SqlTool's properties and *.txt files.
-/*  X's inserted below or this multi-line comment would not work.
-task checkTabs (dependsOn: war) << {
+task checkTabs << {
     FileTree tree = fileTree(dir: '.')
-    tree.exclude '**X/.*'
-    tree.exclude 'src/main/webapp/images'
-    tree.exclude 'src/main/webapp/css/openid*.css'
-    tree.exclude 'src/main/webapp/js/openid*.js'
-    tree.include  'src/X**'
-    tree.include  'doc/X**'
+    tree.exclude '**/.*/**'
+    tree.include  '*.*'
+    tree.include  'gradlew'
+    tree.include  'src/**'
+    tree.include  'doc/**'
+    tree.include  'schemas/**'
     def tabFiles = []
     tree.each { if (it.text.indexOf('\t') > -1) tabFiles << relativePath(it) }
     if (tabFiles.size() > 0) println '  ' + tabFiles.join('\n  ')
 }
-*/
+checkTabs.description = 'Reports on any text files containing tab characters'
 
 task zip(dependsOn: jar, type: Zip) {
     from configurations.runtime.allArtifacts.files
