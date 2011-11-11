@@ -16,7 +16,7 @@ apply plugin: 'maven'
 compileJava.options.debug = (!project.hasProperty('javac.debug')
             || Boolean.parseBoolean(project.property('javac.debug')))
 sourceCompatibility = '1.2'
-targetCompatibility = '1.2'
+targetCompatibility = sourceCompatibility
 description = "Modern build of the the aborted RELAX-NG- + Schematron-capable validator from Sun's MSV project"
 
 //  Work-around for Gradle bug where Runtime classpath must include every
