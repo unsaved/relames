@@ -1,9 +1,18 @@
+apply from: 'build.gradle'
+
 defaultTasks 'uploadArchives'
 
+apply plugin: 'maven'
 apply plugin: 'signing'
 
 signing {
     sign configurations.archives
+}
+ 
+// add javadoc/source jar tasks as artifacts
+artifacts {
+     archives sourcesJar
+     archives javadocJar
 }
 
 uploadArchives {
