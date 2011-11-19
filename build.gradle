@@ -12,6 +12,12 @@ apply plugin: 'java'
 apply plugin: 'ivyxml'
 apply plugin: 'javaPropFile'
 
+def localGradleFile = file('local.gradle')
+if (localGradleFile.isFile()) {
+    logger.info('''Executing optional build file 'localGradleFile'.''')
+    apply from: localGradleFile
+}
+
 // Defaults that can be overridden with property files:
 sourceCompatibility = '1.2'
 targetCompatibility = sourceCompatibility
