@@ -1,22 +1,30 @@
 defaultTasks 'jar'
 
-/**
- * You can add to what is here by creating a build file name "local.gradle".
- * If present, it will be applied automatically.
- * One use case for this is to define additional repositories.
- */
+buildscript {
+    repositories { mavenCentral() }
+    dependencies {
+        classpath 'com.admc:gradle-javaPropFile-plugin:latest.milestone'
+        classpath 'com.admc:gradle-ivyxml-plugin:latest.milestone'
+    }
+}
 
-project['repos.useMaven'] = 'true'
-apply from: 'common.gradle'
 apply plugin: 'java'
+apply plugin: 'ivyxml'
+apply plugin: 'javaPropFile'
 
-// This only present because a Java boolean can't be set in a Java properties
-// file.
-compileJava.options.debug = (!project.hasProperty('javac.debug')
-            || Boolean.parseBoolean(project.property('javac.debug')))
+// Defaults that can be overridden with property files:
 sourceCompatibility = '1.2'
 targetCompatibility = sourceCompatibility
-description = "Modern build of the the aborted RELAX-NG- + Schematron-capable validator from Sun's MSV project"
+project.setProperty('org.name', System.properties['user.name'])
+project.setProperty('jar.title', 'Customization')
+
+propFileLoader.typeCasting = true
+propFileLoader.traditionalPropertiesInit()
+
+compileJava.options.debug =
+        project.hasProperty('javac.debug') ? javac.debug : true
+
+repositories { mavenCentral() }
 
 //  Work-around for Gradle bug where Runtime classpath must include every
 //  Compilation classpath element:
@@ -26,6 +34,9 @@ configurations { compileOnly }
 //for (Configuration c in configurations) c.transitive = false
 // We now let 'ivy.xml' configure transitiveness.
 
+task noop << { }
+noop.description = 'Noop task for Gradle testing'
+
 project.rtLibs = null
 jar { doFirst {
     project.rtLibs = []
@@ -33,25 +44,22 @@ jar { doFirst {
     configurations.runtime.files.each {
         if (!runtimeOnlyFiles.contains(it)) project.rtLibs << it.name
     }
-    String implVendor = (project.hasProperty('organization')
-                        ? project.organization
-                        : System.properties['user.name'])
     jar { manifest { attributes(
         'Main-Class': 'com.sun.msv.schematron.Driver',
         'Class-Path': project.rtLibs.join(' '),
         'Specification-Title': 'Relames',
         'Specification-Version': project.upstreamVersion,
         'Specification-Vendor': 'Sun Microsystems, Inc.',
-        'Implementation-Title': 'Relames executable jar',
+        'Implementation-Title': project.property('jar.title'),
         'Implementation-Version': project.version,
-        'Implementation-Vendor': implVendor
+        'Implementation-Vendor': project.property('org.name')
     ) } }
 } }
 
 // This task only for SCM administrator.  Update version and execute this task.
 task updateWrapper(type: Wrapper) { doFirst {
     assert project.hasProperty('newVersion') :
-            "Property 'newVersion' is required for task 'updateWrapper'"
+        '''Property 'newVersion' is required for task 'updateWrapper'.'''
     assert project.newVersion == gradle.gradleVersion :
         "You invoke Gradle system with version $gradle.gradleVersion instead of desired version $project.newVersion"
 } }
@@ -59,7 +67,7 @@ updateWrapper << {
     gradleVersion = project['newVersion']
     println 'WARNING:  Merge our customizations into the newly-generated wrapper scripts'
 }
-updateWrapper.description = 'Update Gradle version.  For Administrators.'
+updateWrapper.description = 'Update Gradle version.  For HSQLDB Administrators.'
 
 task serialver(dependsOn: compileJava) << {
     assert project.hasProperty('className'):
@@ -156,20 +164,14 @@ zip { doFirst {
     }
 } }
 
-apply from: 'ivyxml-support.gradle'
+ivyxml.load()
 
-// Following 3 tasks copied from
-// http://blog.andresteingress.com/2011/01/14/using-gradle-in-practice/
-// custom tasks for creating source/javadoc jars
 task sourcesJar(type: Jar, dependsOn:classes) {
      classifier = 'sources'
      from sourceSets.main.allSource
 }
 sourcesJar.description = 'Build sources jar file'
 
-// Required for Gradle 1.0 milestone 3, but not for milestone 5:
-javadoc.failOnError = false
- 
 task javadocJar(type: Jar, dependsOn:javadoc) {
      classifier = 'javadoc'
      from javadoc.destinationDir
