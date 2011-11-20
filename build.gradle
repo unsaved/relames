@@ -37,10 +37,6 @@ repositories { mavenCentral() }
 //  Compilation classpath element:
 configurations { compileOnly }
 
-// De-transify dependencies. We aim for precision, not laziness.
-//for (Configuration c in configurations) c.transitive = false
-// We now let 'ivy.xml' configure transitiveness.
-
 task noop << { }
 noop.description = 'Noop task for Gradle testing'
 
