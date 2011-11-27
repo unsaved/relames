@@ -2,8 +2,6 @@
   <!-- $Id: ivy.xml 4634 2011-10-26 11:58:33Z unsaved $ -->
   <info organisation="admc" module="relames"/>
   <configurations defaultconf="compile">
-    <!-- Don't yet have Gradle honoring the 'extends' attribute, so giving
-         verbose conf specifications below instead.  -->
     <conf name="compile" transitive="false" extends="compileOnly"
           description="Compile"/>
     <conf name="runtime" transitive="false" description="Runtime"/>

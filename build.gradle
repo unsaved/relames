@@ -12,6 +12,10 @@ apply plugin: 'java'
 apply plugin: 'ivyxml'
 apply plugin: 'javaPropFile'
 
+import com.admc.gradle.GradleUtil
+
+ivyxml.load()
+
 def localGradleFile = file('local.gradle')
 if (localGradleFile.isFile()) {
     logger.info('''Executing optional build file 'localGradleFile'.''')
@@ -118,8 +122,8 @@ task zip(dependsOn: jar, type: Zip) {
 zip.description =
         'Build zip of end-user executable relames jar with dependencies'
 
-compileJava.dependsOn << { verifyResolve(configurations.compile) }
-zip.dependsOn << { verifyResolve(configurations.runtime) }
+compileJava.dependsOn << { GradleUtil.verifyResolve(configurations.compile) }
+zip.dependsOn << { GradleUtil.verifyResolve(configurations.runtime) }
 
 import java.text.SimpleDateFormat
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -139,8 +143,6 @@ zip { doFirst {
     }
 } }
 
-ivyxml.load()
-
 task sourcesJar(type: Jar, dependsOn:classes) {
      classifier = 'sources'
      from sourceSets.main.allSource
@@ -152,74 +154,3 @@ task javadocJar(type: Jar, dependsOn:javadoc) {
      from javadoc.destinationDir
 }
 javadocJar.description = 'Build javadoc jar file'
-
-import org.gradle.api.artifacts.ModuleDependency
-import org.gradle.api.artifacts.DependencyArtifact
-import java.util.regex.Pattern
-/**
- * Throws if any dependencies of the specified Configuration are not satisfied
- *
- * @throws GradleException containing list of non-satisfied dependencies
- */
-static void verifyResolve(config) {
-    Set<String> artifactSet = [] as Set
-    String classifierStr
-    boolean satisfied
-    List<ModuleDependency> unsatisfiedDeps = []
-    List<DependencyArtifact> unsatisfiedArts = []
-    config.allDependencies.each { it.artifacts.each {
-        // The ModuleDependencies only have artifict members if either
-        // classifier or extension/type are specified for the dependency.
-        // If neither is, then we'll check the dependency in the findAll
-        // loop below.
-        DependencyArtifact depArt ->
-        classifierStr =
-                (depArt.classifier == null) ? '' : ('-' + depArt.classifier)
-        Pattern pat = Pattern.compile(
-                depArt.name + '-.+' + classifierStr + '.' + depArt.extension)
-        satisfied = false
-        for (File f in config.files) {
-            if (pat.matcher(f.name).matches()) {
-                satisfied = true
-                break
-            }
-        }
-        if (!satisfied) {
-            unsatisfiedDeps << it
-            unsatisfiedArts << depArt
-        }
-    } }
-    config.allDependencies.findAll { it.artifacts.size() == 0 }.each {
-        ModuleDependency dep ->
-        Pattern pat = Pattern.compile(
-                dep.name + '-' + dep.version + '[.-].+')
-        satisfied = false
-        for (File f in config.files) {
-            if (pat.matcher(f.name).matches()) {
-                satisfied = true
-                break
-            }
-        }
-        if (!satisfied) {
-            unsatisfiedDeps << dep
-            unsatisfiedArts << null
-        }
-    }
-    if (unsatisfiedDeps.size() == 0) return
-    StringBuilder sb = new StringBuilder()
-    DependencyArtifact depArt
-    int oneBasedInt
-    unsatisfiedDeps.eachWithIndex{ ModuleDependency dep, int i ->
-        depArt = unsatisfiedArts[i]
-        sb.append('    ').append(i + 1)
-        sb.append(": $dep.group:$dep.name:$dep.version")
-        if (depArt != null) {
-            sb.append('  ARTIFACT: ').append("$depArt.name $depArt.extension")
-            if (depArt.classifier != null)
-                sb.append(" (classifier '$depArt.classifier')")
-        }
-        sb.append('\n')
-    }
-    throw new GradleException(
-        "Unsatisfied dependencies for configuration '$config.name':\n" + sb)
-}
